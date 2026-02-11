@@ -42,7 +42,9 @@ const optArticleSelector = ".post",
   optTitleListSelector = ".titles",
   optArticleTagsSelector = ".post-tags .list",
   optArticleAuthorSelector = ".post-author",
-  optTagsListSelector = ".tags.list";
+  optTagsListSelector = ".tags.list",
+  optCloudClassCount = 5,
+  optCloudClassPrefix = "tag-size-";
 
 function generateTitleLinks(customSelector = "") {
   /* remove contents of titleList */
@@ -88,6 +90,15 @@ function generateTitleLinks(customSelector = "") {
 }
 
 generateTitleLinks();
+
+function calculateTagClass(count, params) {
+  // tutaj w przyszłości dodamy logikę obliczania klasy tagu
+  const normalizedCount = count - params.min;
+  const normalizedMax = params.max - params.min;
+  const percentage = normalizedCount / normalizedMax;
+  const classNumber = Math.floor(percentage * (optCloudClassCount - 1) + 1);
+  return optCloudClassPrefix + classNumber;
+}
 
 function generateTags() {
   /* find all articles */
@@ -246,6 +257,27 @@ function addClickListenersToAuthors() {
 
 addClickListenersToAuthors();
 
+function calculateTagsParams(tags) {
+  const params = {
+    max: 0,
+    min: 999999,
+  };
+
+  for (let tag in tags) {
+    //console.log(tag + " is used " + tags[tag] + " times");
+    // params.max = Math.max(tags[tag], params.max);
+    //params.max = tags[tag] > params.max ? tags[tag] : params.max;
+    if (tags[tag] > params.max) {
+      params.max = tags[tag];
+    }
+    if (tags[tag] < params.min) {
+      params.min = tags[tag];
+    }
+  }
+
+  return params;
+}
+
 function generateTags() {
   /* [NEW] create a new variable allTags with an empty object */
   let allTags = {};
@@ -270,6 +302,7 @@ function generateTags() {
     /* START LOOP: for each tag */
     for (let tag of articleTagsArray) {
       /* generate HTML of the link */
+      //const linkHTML = '<li><a href="#tag-' + tag + '">' + tag + "</a></li>";
       const linkHTML = '<li><a href="#tag-' + tag + '">' + tag + "</a></li>";
 
       /* add generated code to html variable */
@@ -294,6 +327,8 @@ function generateTags() {
   /* [NEW] find list of tags in right column */
   const tagList = document.querySelector(optTagsListSelector);
 
+  const tagsParams = calculateTagsParams(allTags);
+  console.log("tagsParams:", tagsParams);
   /* [NEW] create variable for all links HTML code */
   let allTagsHTML = "";
 
@@ -301,17 +336,29 @@ function generateTags() {
   for (let tag in allTags) {
     /* [New] generate code of a link and add it to allTagsHTML */
     //allTagsHTML += tag + " (" + allTags[tag] + ") ";
-    const linkHTML =
+    /*const tagLinkHTML =
       '<li><a href="#tag-' +
       tag +
+      '" class="' +
+      calculateTagClass(allTags[tag], tagsParams) +
       '">' +
       tag +
       " (" +
       allTags[tag] +
       ")</a></li>";
-
-    allTagsHTML += linkHTML;
+*/
+    const tagLinkHTML =
+      '<li><a href="#tag-' +
+      tag +
+      '" class="' +
+      calculateTagClass(allTags[tag], tagsParams) +
+      '">' +
+      tag +
+      " </a></li>";
+    //allTagsHTML += linkHTML;
+    allTagsHTML += tagLinkHTML;
   }
+
   /* [New] END LOOP: for each tag in allTags: */
 
   /* [NEW] add html from allTags to tagList */
