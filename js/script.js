@@ -44,7 +44,8 @@ const optArticleSelector = ".post",
   optArticleAuthorSelector = ".post-author",
   optTagsListSelector = ".tags.list",
   optCloudClassCount = 5,
-  optCloudClassPrefix = "tag-size-";
+  optCloudClassPrefix = "tag-size-",
+  optAuthorsListSelector = ".authors.list";
 
 function generateTitleLinks(customSelector = "") {
   /* remove contents of titleList */
@@ -368,3 +369,62 @@ function generateTags() {
 
 generateTags();
 addClickListenersToTags();
+
+/*Lista autorów */
+
+function generateAuthors() {
+  /* create empty object for counting authors */
+  let allAuthors = {};
+
+  /* find all articles */
+  const articles = document.querySelectorAll(optArticleSelector);
+
+  /* START LOOP: for every article */
+  for (let article of articles) {
+    /* get author from data-author */
+    const articleAuthor = article.getAttribute("data-author");
+
+    /* find author wrapper in article */
+    const authorWrapper = article.querySelector(optArticleAuthorSelector);
+
+    /* generate link HTML */
+    const authorHTML =
+      '<a href="#author-' + articleAuthor + '">' + articleAuthor + "</a>";
+
+    /* insert author link into article */
+    authorWrapper.innerHTML = authorHTML;
+
+    /* count author occurrences */
+    if (!allAuthors[articleAuthor]) {
+      allAuthors[articleAuthor] = 1;
+    } else {
+      allAuthors[articleAuthor]++;
+    }
+  }
+  /* END LOOP */
+
+  /* find authors list in sidebar */
+  const authorsList = document.querySelector(optAuthorsListSelector);
+
+  /* create html variable */
+  let allAuthorsHTML = "";
+
+  /* START LOOP: for each author */
+  for (let author in allAuthors) {
+    const authorLinkHTML =
+      '<li><a href="#author-' +
+      author +
+      '">' +
+      author +
+      " (" +
+      allAuthors[author] +
+      ")" +
+      "</a></li>";
+
+    allAuthorsHTML += authorLinkHTML;
+  }
+  /* END LOOP */
+
+  /* insert into sidebar */
+  authorsList.innerHTML = allAuthorsHTML;
+}
